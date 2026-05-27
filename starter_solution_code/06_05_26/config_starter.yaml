@@ -1,0 +1,35 @@
+# ==============================================================================
+# Friday, June 5 - Morning Session
+# Hyperparameter Configuration Starter file
+#
+# TODO: Adjust the values below to set up your training experiment.
+# ==============================================================================
+
+# Dataset Configuration
+dataset:
+  # Path on OSC: /fs/ess/PAS2699/AI_Presidency_Dataset_CSG/Soybeans/Soybeans
+  # Path on local: ./temp_soybean_dataset
+  root_path: "./temp_soybean_dataset"
+  train_ratio: 0.8
+
+# Training Environment Settings
+environment:
+  device: "cuda"  # Use "cuda" or "cpu"
+  batch_size: 16  # TODO: Adjust batch size (recommendations: 16, 32, or 64)
+  image_size: 518
+
+# Model Hyperparameters
+hyperparameters:
+  # Classifier Head Training
+  epochs_head: 5
+  lr_head: 0.001
+
+  # Transformer Fine-tuning (Last Block)
+  epochs_fine: 3
+  lr_fine: 0.00001
+  weight_decay: 0.01
+
+# Output File Settings
+output:
+  save_model_path: "models/soybean_dinov2_head_model.pth"
+  save_plots: true

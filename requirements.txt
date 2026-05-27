@@ -1,0 +1,24 @@
+# ==============================================================================
+# OSU Summer Camp 2026 - Required Python Dependencies
+# ==============================================================================
+
+# Core Data Science & Plotting
+numpy>=1.26
+matplotlib>=3.7
+pillow>=10.0
+scikit-learn>=1.3
+PyYAML>=6.0
+
+# Deep Learning Framework (PyTorch)
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Vision Transformer Backbones
+timm>=0.9.0
+
+# Interactive Web Application
+gradio>=4.0.0
+
+# Edge Optimization and Compilation
+onnx>=1.14.0
+onnxruntime>=1.15.0
