@@ -24,7 +24,7 @@
 
 # ==============================================================================
 # TODO 2: Load software modules
-# Hint: Load 'python/3.10-conda' and 'cuda/11.8.0'
+# Hint: Load 'python/3.10' and 'cuda/11.8.0'
 # ==============================================================================
 # Write module load commands here:
 

@@ -13,8 +13,9 @@
 #SBATCH --account=PAS2699
 
 # TODO 2 Solution: Load modules
-module load python/3.10-conda
+module load python/3.10
 module load cuda/11.8.0
 
 # TODO 3 Solution: Run the training script
+cd $SLURM_SUBMIT_DIR
 python train_solution.py

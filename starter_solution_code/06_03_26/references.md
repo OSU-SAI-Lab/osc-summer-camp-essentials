@@ -12,7 +12,7 @@ To run scripts on OSC Pitzer or Owens, we load the required pre-installed softwa
 
 ```bash
 # Load the Python and PyTorch modules
-module load python/3.10-conda
+module load python/3.10
 module load cuda/11.8.0
 
 # Verify the loaded modules
