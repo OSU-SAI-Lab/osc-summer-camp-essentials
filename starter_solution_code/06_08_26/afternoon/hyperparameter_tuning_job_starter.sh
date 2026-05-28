@@ -1,27 +1,27 @@
 #!/bin/bash
 # ==============================================================================
-# Monday, June 8 - Morning Session
-# SLURM Batch Job Script for Error Analysis Launch
+# Monday, June 8 - Afternoon Session
+# SLURM Batch Job Script for Hyperparameter Tuning Launch
 # ==============================================================================
 #
 # TODO 1: Set SLURM resources needed for a full GPU training job
 # Specifications:
-#   - Job name: error_analysis
-#   - Time limit: 00:30:00
+#   - Job name: hyperparameter_tuning
+#   - Time limit: 02:00:00
 #   - Nodes: 1
 #   - Cores (ntasks-per-node): 1
 #   - CPUs per task (cpus-per-task): 16 (for DataLoader workers)
 #   - GPU count: 1 (gpus-per-node=1)
-#   - Output file pattern: slurm-error_analysis-%j.out
+#   - Output file pattern: slurm-hyperparameter_tuning-%j.out
 #   - Account: PAS2699
 #
-#SBATCH --job-name=error_analysis
-#SBATCH --time=00:30:00
+#SBATCH --job-name=hyperparameter_tuning
+#SBATCH --time=02:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
 #SBATCH --gpus-per-node=1
-#SBATCH --output=slurm-error_analysis-%j.out
+#SBATCH --output=slurm-hyperparameter_tuning-%j.out
 #SBATCH --account=PAS2699
 
 # ==============================================================================
@@ -35,7 +35,7 @@
 
 # ==============================================================================
 # TODO 3: Execute the PyTorch script
-# Hint: You should first `cd $SLURM_SUBMIT_DIR` and then `source ../../venv_osc/bin/activate` before running your script.
+# Hint: You should first `cd $SLURM_SUBMIT_DIR` and then `source ../../../venv_osc/bin/activate` before running your script.
 # ==============================================================================
 # Write your command here:
 

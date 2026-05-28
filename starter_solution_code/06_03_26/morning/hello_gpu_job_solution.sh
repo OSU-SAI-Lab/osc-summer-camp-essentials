@@ -17,5 +17,5 @@ module load python/3.10
 module load cuda/12.1.1
 # TODO 3 Solution: Run python script
 cd $SLURM_SUBMIT_DIR
-source ../../venv_osc/bin/activate
+source ../../../venv_osc/bin/activate
 python hello_gpu_solution.py

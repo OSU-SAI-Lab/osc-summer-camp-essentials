@@ -1,12 +1,12 @@
 """
 Monday, June 8 - Morning Session
-Error Analysis and Metrics Report (Solution Code)
+Error Analysis and Metrics Report (Starter Code)
 
 What this script is:
-A reference solution for classification metrics and confusion matrix plotting.
+A metrics report generator and confusion matrix plotter.
 
 Goal of this script:
-Compute metrics reports and plot confusion matrices as annotated heatmaps.
+Generate classification reports (Precision, Recall, F1-Scores) for each disease class, and plot a confusion matrix heatmap.
 
 Why we are doing it (Student Context):
 A simple accuracy score hides model mistakes. Precision and recall tell us exactly which crop classes (e.g. Insect Damage vs Healthy) the model confuses, guiding our troubleshooting and data improvements.
@@ -23,6 +23,12 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, Subset
 import timm
 
+# ==============================================================================
+# Helper Code Provided by Instructor
+# We have already written the PyTorch inference loop for you so you can focus 
+# on the error analysis metrics today. You will learn how to write PyTorch 
+# inference loops yourself tomorrow!
+# ==============================================================================
 class SoybeanClassifier(nn.Module):
     def __init__(self, num_classes=6):
         super(SoybeanClassifier, self).__init__()
@@ -40,9 +46,9 @@ class SoybeanClassifier(nn.Module):
 
 def get_val_loader():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir, "../06_05_26/config_solution.yaml")
+    config_path = os.path.join(script_dir, "../../06_05_26/morning/config_starter.yaml")
     if not os.path.exists(config_path):
-        config_path = os.path.join(script_dir, "../06_05_26/config_starter.yaml")
+        config_path = os.path.join(script_dir, "../../06_05_26/morning/config_solution.yaml")
         
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
@@ -52,7 +58,6 @@ def get_val_loader():
     batch_size = config['environment'].get('batch_size') or 32
     image_size = config['environment'].get('image_size') or 518
     
-    # Check if path is relative, and adjust based on previous scripts
     if dataset_path == "./temp_soybean_dataset" or not os.path.exists(dataset_path):
         print(f"Warning: Dataset path '{dataset_path}' not found. Falling back to local temp dataset.")
         dataset_path = os.path.join(script_dir, "../06_05_26/temp_soybean_dataset")
@@ -72,12 +77,11 @@ def get_val_loader():
     _, val_idx = indices[:split], indices[split:]
     
     val_subset = Subset(val_dataset, val_idx)
-    # Using small batch size for CPU fallback stability
     val_loader = DataLoader(val_subset, batch_size=min(16, batch_size), shuffle=False)
     
     return val_loader, classes
 
-def main():
+def run_inference_helper():
     print("Loading Validation Dataset...")
     val_loader, classes = get_val_loader()
     
@@ -86,7 +90,7 @@ def main():
     
     model = SoybeanClassifier(num_classes=len(classes))
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(script_dir, "../06_05_26/models/soybean_dinov2_head_model.pth")
+    model_path = os.path.join(script_dir, "../../06_05_26/morning/models/soybean_dinov2_head_model.pth")
     
     if os.path.exists(model_path):
         print(f"Loading weights from {model_path}...")
@@ -113,44 +117,40 @@ def main():
             y_true.extend(labels.numpy())
             y_pred.extend(preds.cpu().numpy())
             
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
+    return np.array(y_true), np.array(y_pred), classes
+# ==============================================================================
 
-    # TODO 1 Solution: Generate classification report
+
+def main():
+    # Load actual true labels and predicted labels by running the model
+    y_true, y_pred, classes = run_inference_helper()
+
+    # TODO 1: Generate and print the text-based classification report
+    # Hint: Use classification_report(y_true, y_pred, target_names=classes)
+    
     print("=========================================")
     print("Classification Metrics Report:")
     print("=========================================")
-    report = classification_report(y_true, y_pred, target_names=classes)
+    report = "" # TODO: Generate report
     print(report)
 
-    # TODO 2 Solution: Calculate confusion matrix
-    cm = confusion_matrix(y_true, y_pred)
+    # TODO 2: Calculate the confusion matrix
+    # Hint: Use confusion_matrix(y_true, y_pred)
+    
+    cm = None # TODO: Calculate confusion matrix
     print("Confusion Matrix calculated.")
 
-    # TODO 3 Solution: Heatmap plotting
-    plt.figure(figsize=(10, 8))
-    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Greens)
-    plt.title("Soybean Disease Classifier Confusion Matrix", fontsize=14, fontweight="bold")
-    plt.colorbar()
+    # TODO 3: Plot the confusion matrix as an annotated heatmap using Matplotlib
+    # Requirements:
+    #   - Use plt.imshow() to show the matrix values
+    #   - Add class labels to x-axis and y-axis ticks
+    #   - Loop through the matrix and add text annotations inside each cell
+    #   - Add axis labels and title
     
-    # Tick marks
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45, ha="right")
-    plt.yticks(tick_marks, classes)
-
-    # Text annotations in each cell
-    thresh = cm.max() / 2.
-    for i in range(cm.shape[0]):
-        for j in range(cm.shape[1]):
-            plt.text(j, i, format(cm[i, j], 'd'),
-                     horizontalalignment="center",
-                     color="white" if cm[i, j] > thresh else "black",
-                     fontsize=12,
-                     fontweight="bold")
-
-    plt.tight_layout()
-    plt.ylabel('True Class Label', fontsize=12)
-    plt.xlabel('Predicted Class Label', fontsize=12)
+    plt.figure(figsize=(10, 8))
+    
+    # TODO: Write matplotlib heatmap plotting code here
+    
     
     # Save the heatmap plot
     os.makedirs("outputs", exist_ok=True)

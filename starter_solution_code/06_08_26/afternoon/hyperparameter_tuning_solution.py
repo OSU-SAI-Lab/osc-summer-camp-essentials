@@ -1,12 +1,12 @@
 """
 Monday, June 8 - Afternoon Session
-Hyperparameter Sweep Simulation (Starter Code)
+Hyperparameter Sweep Simulation (Solution Code)
 
 What this script is:
-A hyperparameter search and evaluation script.
+A reference solution for hyperparameter searches.
 
 Goal of this script:
-Simulate training with different learning rates, save sweep results to JSON, and plot comparison charts.
+Run learning rate sweeps, log trial results to JSON, and plot bar charts comparing performance.
 
 Why we are doing it (Student Context):
 Hyperparameters (like learning rate) determine how models learn. We conduct systematic sweeps to find the optimal settings rather than guessing, ensuring our model converges reliably.
@@ -26,11 +26,6 @@ import timm
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-# ==============================================================================
-# Helper Code Provided by Instructor
-# We have already written the PyTorch sweep loop for you so you can focus 
-# on the logging and chart visualization!
-# ==============================================================================
 class SoybeanClassifier(nn.Module):
     def __init__(self, num_classes=6):
         super(SoybeanClassifier, self).__init__()
@@ -50,9 +45,9 @@ class SoybeanClassifier(nn.Module):
 
 def get_dataloaders():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir, "../06_05_26/config_starter.yaml")
+    config_path = os.path.join(script_dir, "../../06_05_26/morning/config_solution.yaml")
     if not os.path.exists(config_path):
-        config_path = os.path.join(script_dir, "../06_05_26/config_solution.yaml")
+        config_path = os.path.join(script_dir, "../../06_05_26/morning/config_starter.yaml")
         
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
@@ -87,23 +82,18 @@ def get_dataloaders():
     
     return train_loader, val_loader, len(dataset.classes)
 
-# Load global dataset variables once
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Preparing datasets on {DEVICE}...")
-TRAIN_LOADER, VAL_LOADER, NUM_CLASSES = get_dataloaders()
-
-def train_evaluate_lr(lr):
+def train_evaluate_lr(lr, train_loader, val_loader, num_classes, device):
     """
     Trains the head for 1 epoch with a specific learning rate, and returns validation metrics.
     """
-    model = SoybeanClassifier(NUM_CLASSES).to(DEVICE)
+    model = SoybeanClassifier(num_classes).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.head.parameters(), lr=lr)
     
     model.train()
     print(f"  Training 1 epoch with lr={lr}...")
-    for images, labels in tqdm(TRAIN_LOADER, leave=False):
-        images, labels = images.to(DEVICE), labels.to(DEVICE)
+    for images, labels in tqdm(train_loader, leave=False):
+        images, labels = images.to(device), labels.to(device)
         optimizer.zero_grad()
         outputs = model(images)
         loss = criterion(outputs, labels)
@@ -115,8 +105,8 @@ def train_evaluate_lr(lr):
     correct = 0
     total = 0
     with torch.no_grad():
-        for images, labels in VAL_LOADER:
-            images, labels = images.to(DEVICE), labels.to(DEVICE)
+        for images, labels in val_loader:
+            images, labels = images.to(device), labels.to(device)
             outputs = model(images)
             loss = criterion(outputs, labels)
             val_loss += loss.item() * images.size(0)
@@ -125,11 +115,13 @@ def train_evaluate_lr(lr):
             correct += (predicted == labels).sum().item()
             
     return correct / total, val_loss / total
-# ==============================================================================
 
 def main():
-    # TODO 1: Define search space
-    # Hint: Create a list called `learning_rates` containing [1e-2, 1e-3, 1e-4]
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Preparing datasets on {device}...")
+    train_loader, val_loader, num_classes = get_dataloaders()
+    
+    # TODO 1 Solution: Define search space
     learning_rates = [1e-2, 1e-3, 1e-4]
 
     results = []
@@ -138,10 +130,9 @@ def main():
     for lr in learning_rates:
         print(f"\n--- Running experiment with learning_rate={lr} ---")
         
-        # Run PyTorch Evaluation Helper
-        acc, loss = train_evaluate_lr(lr)
+        # Run real training loop
+        acc, loss = train_evaluate_lr(lr, train_loader, val_loader, num_classes, device)
         
-        # Store trial results
         trial_data = {
             "learning_rate": lr,
             "validation_accuracy": acc,
@@ -150,32 +141,34 @@ def main():
         results.append(trial_data)
         print(f"  Result: Accuracy={acc:.4f}, Loss={loss:.4f}")
 
-    # TODO 2: Save to JSON file
-    # Hint: Use json.dump(results, f, indent=4) to save the results array to "outputs/tuning_results.json"
+    # TODO 2 Solution: Save to JSON file
     os.makedirs("outputs", exist_ok=True)
     output_json = "outputs/tuning_results.json"
-    
-    # Write JSON saving logic here:
     with open(output_json, 'w') as f:
         json.dump(results, f, indent=4)
-    
     print(f"\nAll trial results saved to '{output_json}'.")
 
     # Extract values for plotting
     lr_labels = [str(r["learning_rate"]) for r in results]
     accuracies = [r["validation_accuracy"] for r in results]
 
-    # TODO 3: Plot a bar chart comparing validation accuracy across learning rates
-    # Requirements:
-    #   - Set bar labels as string values of learning rates
-    #   - Customize bar colors, add grid, y-axis limit [0, 1]
-    #   - Add title and axis labels
-    
+    # TODO 3 Solution: Matplotlib bar chart
     plt.figure(figsize=(8, 5))
+    bars = plt.bar(lr_labels, accuracies, color=["crimson", "seagreen", "dodgerblue"], width=0.5)
     
-    # TODO: Write matplotlib bar chart plotting code here
+    # Customize plot
+    plt.title("Hyperparameter Optimization: Learning Rate Sweep", fontsize=14, fontweight="bold")
+    plt.xlabel("Learning Rate Setting", fontsize=12)
+    plt.ylabel("Validation Accuracy", fontsize=12)
+    plt.ylim(0, 1.0)
+    plt.grid(axis='y', linestyle=':', alpha=0.6)
     
-    
+    # Annotate bar heights
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2.0, height + 0.02, f"{height:.3f}",
+                 ha='center', va='bottom', fontsize=11, fontweight="bold")
+                 
     # Save the chart
     output_img = "outputs/tuning_comparison.png"
     plt.savefig(output_img, dpi=300)

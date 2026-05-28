@@ -45,9 +45,9 @@ class SoybeanClassifier(nn.Module):
 
 def get_loaders():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir, "../06_05_26/config_starter.yaml")
+    config_path = os.path.join(script_dir, "../../06_05_26/morning/config_starter.yaml")
     if not os.path.exists(config_path):
-        config_path = os.path.join(script_dir, "../06_05_26/config_solution.yaml")
+        config_path = os.path.join(script_dir, "../../06_05_26/morning/config_solution.yaml")
         
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
@@ -108,7 +108,7 @@ def run_field_evaluation():
     
     model = SoybeanClassifier(num_classes=num_classes)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(script_dir, "../06_05_26/models/soybean_dinov2_head_model.pth")
+    model_path = os.path.join(script_dir, "../../06_05_26/morning/models/soybean_dinov2_head_model.pth")
     
     if os.path.exists(model_path):
         print(f"Loading weights from {model_path}...")
