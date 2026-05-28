@@ -15,6 +15,9 @@ To run scripts on OSC Pitzer or Owens, we load the required pre-installed softwa
 module load python/3.10
 module load cuda/11.8.0
 
+# Activate the virtual environment
+source ../../venv_osc/bin/activate
+
 # Verify the loaded modules
 module list
 ```

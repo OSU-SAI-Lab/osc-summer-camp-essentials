@@ -24,6 +24,7 @@
 # ==============================================================================
 # TODO 2: Load the required software modules
 # Hint: Load 'python/3.10' and 'cuda/11.8.0'
+# Hint: You will also need to activate your virtual environment (e.g., source ../../venv_osc/bin/activate)
 # ==============================================================================
 # Write module load commands here:
 
@@ -31,7 +32,7 @@
 
 # ==============================================================================
 # TODO 3: Execute your python verification script
-# Hint: Run the starter script
+# Hint: You should first `cd $SLURM_SUBMIT_DIR` and then `source ../../venv_osc/bin/activate` before running your script.
 # ==============================================================================
 # Write the execution command here:
 
