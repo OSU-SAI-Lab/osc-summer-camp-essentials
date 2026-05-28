@@ -23,7 +23,7 @@
 
 # ==============================================================================
 # TODO 2: Load the required software modules
-# Hint: Load 'python/3.10' and 'cuda/11.8.0'
+# Hint: Load 'python/3.10' and 'cuda/12.1.1'
 # Hint: You will also need to activate your virtual environment (e.g., source ../../venv_osc/bin/activate)
 # ==============================================================================
 # Write module load commands here:
