@@ -22,7 +22,7 @@ python -m venv venv_osc
 pip install -r requirements.txt
 
 # Activate the virtual environment
-source ../../venv_osc/bin/activate
+source ../../../venv_osc/bin/activate
 
 # Verify the loaded modules
 module list
