@@ -74,23 +74,11 @@ def main():
     print(f"Dataset Path: {dataset_path}")
     print(f"Batch Size: {batch_size}")
     
-    # Fallback if dataset path does not exist (e.g. running locally instead of OSC)
+    import sys
     if not os.path.exists(dataset_path):
-        print(f"Warning: Dataset path '{dataset_path}' not found. Falling back to local './temp_soybean_dataset'.")
-        dataset_path = "./temp_soybean_dataset"
-    
-    # Create temp mock dataset if local and doesn't exist
-    if dataset_path == "./temp_soybean_dataset" and not os.path.exists(dataset_path):
-        classes = ['DicambaDamage', 'FrogEyeLeafSpot', 'GenericFeeding', 'InsectDamage', 'Soybeans', 'SuddenDeathSyndrome']
-        os.makedirs(dataset_path, exist_ok=True)
-        for cls in classes:
-            cls_dir = os.path.join(dataset_path, cls)
-            os.makedirs(cls_dir, exist_ok=True)
-            for i in range(15):
-                img_arr = np.random.randint(50, 200, size=(100, 100, 3), dtype=np.uint8)
-                img_arr[30:70, 30:70, 1] = 220
-                from PIL import Image
-                Image.fromarray(img_arr).save(os.path.join(cls_dir, f"leaf_{i}.jpg"))
+        print(f"Error: Dataset path '{dataset_path}' not found.")
+        print("Are you running this on the OSC cluster? Please check your directory paths in config.yaml.")
+        sys.exit(1)
                 
     # Define transforms
     train_transform = transforms.Compose([
@@ -121,8 +109,8 @@ def main():
     train_subset = Subset(train_dataset, train_idx)
     val_subset = Subset(val_dataset, val_idx)
     
-    train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True, num_workers=8)
-    val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False, num_workers=8)
+    train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
+    val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False, num_workers=8, pin_memory=True)
     
     print(f"Loaded {len(train_dataset)} images across {num_classes} classes.")
     print(f"Classes: {train_dataset.classes}")

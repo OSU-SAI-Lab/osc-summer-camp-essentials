@@ -14,8 +14,8 @@ dataset:
 
 # Training Environment Settings
 environment:
-  device: "cuda"  # Use "cuda" or "cpu"
-  batch_size: 16  # TODO: Adjust batch size (recommendations: 16, 32, or 64)
+  device: "cuda"
+  batch_size: 256
   image_size: 518
 
 # Model Hyperparameters

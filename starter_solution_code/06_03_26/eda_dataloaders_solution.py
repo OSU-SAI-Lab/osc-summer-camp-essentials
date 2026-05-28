@@ -13,7 +13,7 @@ AI models learn from data. Inspecting data for class balance and setting up data
 """
 
 import os
-import shutil
+import sys
 import torch
 import numpy as np
 from PIL import Image
@@ -22,34 +22,13 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from collections import Counter
 
-def create_mock_dataset(root_dir):
-    """
-    Helper function to create a small mock crop disease dataset.
-    This ensures the code runs locally on your computer even if you are not at OSC.
-    """
-    classes = ['DicambaDamage', 'FrogEyeLeafSpot', 'GenericFeeding', 'InsectDamage', 'Soybeans', 'SuddenDeathSyndrome']
-    os.makedirs(root_dir, exist_ok=True)
-    
-    # Generate 5 sample images per class
-    for cls in classes:
-        cls_dir = os.path.join(root_dir, cls)
-        os.makedirs(cls_dir, exist_ok=True)
-        for i in range(5):
-            # Create a simple color block image representing a leaf
-            img_arr = np.random.randint(50, 200, size=(100, 100, 3), dtype=np.uint8)
-            # Add a colored green shape to make it look like a leaf
-            img_arr[30:70, 30:70, 1] = 220 # Add green channel boost
-            img = Image.fromarray(img_arr)
-            img.save(os.path.join(cls_dir, f"leaf_{i}.jpg"))
-            
-    print(f"Created temporary mock dataset with {len(classes)} classes in '{root_dir}'.\n")
-
 def main():
-    OSC_PATH = "/fs/ess/PAS2699/AI_Presidency_Dataset_CSG/Soybeans/Soybeans"
-    DATASET_ROOT = OSC_PATH if os.path.exists(OSC_PATH) else "./temp_soybean_dataset"
+    DATASET_ROOT = "/fs/ess/PAS2699/AI_Presidency_Dataset_CSG/Soybeans/Soybeans"
     
-    if DATASET_ROOT == "./temp_soybean_dataset" and not os.path.exists(DATASET_ROOT):
-        create_mock_dataset(DATASET_ROOT)
+    if not os.path.exists(DATASET_ROOT):
+        print(f"Error: Dataset path '{DATASET_ROOT}' not found.")
+        print("Are you running this on the OSC cluster? Please check your directory paths.")
+        sys.exit(1)
 
     # TODO 1 Solution: Define transforms
     train_transform = transforms.Compose([
@@ -99,9 +78,6 @@ def main():
     plt.tight_layout()
     plt.suptitle("Augmented Training Image Samples from DataLoader", fontsize=16)
     plt.show()
-
-    if DATASET_ROOT == "./temp_soybean_dataset" and os.path.exists(DATASET_ROOT):
-        print("\nNote: Temporary local dataset folder is saved at './temp_soybean_dataset'.")
 
 if __name__ == "__main__":
     main()

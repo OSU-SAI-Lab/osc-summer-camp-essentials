@@ -18,27 +18,7 @@ import glob
 import sys
 import matplotlib.pyplot as plt
 
-# A sample mock training log string.
-# If no log file is passed, the script will use this string as a fallback.
-MOCK_LOG_DATA = """
-Found 1200 images across 6 classes.
-Classes: ['DicambaDamage', 'FrogEyeLeafSpot', 'GenericFeeding', 'InsectDamage', 'Soybeans', 'SuddenDeathSyndrome']
 
-Training classifier head...
-
-Epoch 1/5, Loss: 1.4520
-Epoch 2/5, Loss: 0.9840
-Epoch 3/5, Loss: 0.7610
-Epoch 4/5, Loss: 0.6120
-Epoch 5/5, Loss: 0.5180
-
-Fine-tuning last transformer block...
-
-Fine Epoch 1/3, Loss: 0.4320
-Fine Epoch 2/3, Loss: 0.3140
-Fine Epoch 3/3, Loss: 0.2050
-Fine-tuning complete!
-"""
 
 def parse_logs(log_content):
     """
@@ -92,8 +72,9 @@ def main():
         with open(log_path, 'r') as f:
             content = f.read()
     else:
-        print(f"Log file '{log_path}' not found. Falling back to mock logs...")
-        content = MOCK_LOG_DATA
+        print(f"Error: Log file '{log_path}' not found.")
+        print("Did you submit your training job via SLURM yet?")
+        sys.exit(1)
         
     h_eps, h_losses, f_eps, f_losses = parse_logs(content)
     

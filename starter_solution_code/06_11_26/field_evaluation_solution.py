@@ -13,19 +13,115 @@ Models often fail in the real world due to domain shift (shadows, angles, camera
 """
 
 import os
+import sys
+import yaml
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader, Subset
+import timm
+from tqdm import tqdm
+
+class SoybeanClassifier(nn.Module):
+    def __init__(self, num_classes=6):
+        super(SoybeanClassifier, self).__init__()
+        try:
+            self.backbone = timm.create_model('vit_base_patch14_dinov2.lvd142m', pretrained=False, num_classes=0)
+        except Exception:
+            self.backbone = timm.create_model('resnet18', pretrained=False, num_classes=0)
+        in_features = self.backbone.num_features
+        self.head = nn.Linear(in_features, num_classes)
+        
+    def forward(self, x):
+        features = self.backbone(x)
+        logits = self.head(features)
+        return logits
+
+def get_loaders():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(script_dir, "../06_05_26/config_solution.yaml")
+    if not os.path.exists(config_path):
+        config_path = os.path.join(script_dir, "../06_05_26/config_starter.yaml")
+        
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+        
+    dataset_path = config['dataset']['root_path']
+    train_ratio = config['dataset']['train_ratio']
+    batch_size = config['environment'].get('batch_size') or 32
+    image_size = config['environment'].get('image_size') or 518
+    
+    transform = transforms.Compose([
+        transforms.Resize((image_size, image_size)),
+        transforms.ToTensor(),
+    ])
+    
+    # 1. Load Validation Dataset
+    if not os.path.exists(dataset_path):
+        print(f"Error: Training dataset path '{dataset_path}' not found.")
+        sys.exit(1)
+    
+    full_dataset = datasets.ImageFolder(root=dataset_path, transform=transform)
+    indices = list(range(len(full_dataset)))
+    split = int(np.floor(train_ratio * len(full_dataset)))
+    np.random.seed(42)
+    np.random.shuffle(indices)
+    _, val_idx = indices[:split], indices[split:]
+    val_subset = Subset(full_dataset, val_idx)
+    val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False)
+    
+    # 2. Load Field Dataset
+    # NOTE: Assuming Field_Data is stored next to the training dataset Soybeans folder
+    FIELD_DATA_DIR = "/fs/ess/PAS2699/AI_Presidency_Dataset_CSG/Soybeans/Field_Data"
+    if not os.path.exists(FIELD_DATA_DIR):
+        print(f"Error: Field dataset path '{FIELD_DATA_DIR}' not found.")
+        print("Please update FIELD_DATA_DIR in the script to point to the images collected on Day 2.")
+        sys.exit(1)
+        
+    field_dataset = datasets.ImageFolder(root=FIELD_DATA_DIR, transform=transform)
+    field_loader = DataLoader(field_dataset, batch_size=batch_size, shuffle=False)
+    
+    return val_loader, field_loader, len(full_dataset.classes)
+
+def evaluate_loader(model, loader, device, desc="Evaluating"):
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for images, labels in tqdm(loader, desc=desc):
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    return correct / total
 
 def main():
-    val_targets = np.array([4, 4, 1, 1, 5, 5, 3, 3, 0, 2] * 10)
-    val_preds   = np.array([4, 4, 1, 1, 5, 5, 3, 2, 0, 2] * 10) # 90% correct
-
-    field_targets = np.array([4, 4, 1, 1, 5, 5, 3, 3, 0, 2] * 10)
-    field_preds   = np.array([4, 1, 1, 4, 5, 3, 3, 2, 0, 3] * 10) # 60% correct
-
-    # TODO 2 Solution: Calculate accuracies
-    val_accuracy = np.mean(val_preds == val_targets)
-    field_accuracy = np.mean(field_preds == field_targets)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Loading datasets on {device}...")
+    val_loader, field_loader, num_classes = get_loaders()
+    
+    model = SoybeanClassifier(num_classes=num_classes)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(script_dir, "../06_05_26/models/soybean_dinov2_head_model.pth")
+    
+    if os.path.exists(model_path):
+        print(f"Loading weights from {model_path}...")
+        checkpoint = torch.load(model_path, map_location=device)
+        if isinstance(checkpoint, dict) and "model_state" in checkpoint:
+            model.load_state_dict(checkpoint["model_state"])
+        else:
+            model.load_state_dict(checkpoint)
+    else:
+        print(f"Warning: {model_path} not found. Running with random weights.")
+        
+    model = model.to(device)
+    
+    # TODO 2 Solution: Calculate accuracies using real evaluation
+    val_accuracy = evaluate_loader(model, val_loader, device, "Evaluating Validation Set (ID)")
+    field_accuracy = evaluate_loader(model, field_loader, device, "Evaluating Field Set (OOD)")
 
     print("=========================================")
     print("Out-of-Distribution (OOD) Evaluation:")

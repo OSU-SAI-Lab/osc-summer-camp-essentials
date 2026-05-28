@@ -102,31 +102,11 @@ def main():
     MODEL_CHECKPOINT = "models/soybean_dinov2_head_model.pth"
     TEST_IMAGE = "outputs/sample_test_leaf.jpg"
     
-    # Generate a dummy test image if one doesn't exist
     if not os.path.exists(TEST_IMAGE):
-        os.makedirs("outputs", exist_ok=True)
-        daily_leaf = os.path.join(os.path.dirname(__file__), "sample_test_leaf.jpg")
-        if os.path.exists(daily_leaf):
-            import shutil
-            shutil.copy(daily_leaf, TEST_IMAGE)
-            print(f"Copied realistic test leaf to '{TEST_IMAGE}'.")
-        else:
-            from PIL import ImageDraw
-            # Create a light green background
-            img = Image.new("RGB", (518, 518), color=(240, 248, 240))
-            draw = ImageDraw.Draw(img)
-            # Draw a brown stem
-            draw.line([259, 220, 259, 440], fill=(139, 90, 43), width=6)
-            # Draw trifoliate soybean leaf (three leaflets: center, left, right)
-            draw.ellipse([110, 180, 240, 290], fill=(34, 139, 34), outline=(0, 100, 0), width=3) # Left
-            draw.ellipse([278, 180, 408, 290], fill=(34, 139, 34), outline=(0, 100, 0), width=3) # Right
-            draw.ellipse([194, 90, 324, 230], fill=(34, 139, 34), outline=(0, 100, 0), width=3)  # Center
-            # Draw leaflet main veins
-            draw.line([194, 235, 120, 195], fill=(0, 100, 0), width=2) # Left vein
-            draw.line([324, 235, 398, 195], fill=(0, 100, 0), width=2) # Right vein
-            draw.line([259, 220, 259, 100], fill=(0, 100, 0), width=2) # Center vein
-            img.save(TEST_IMAGE)
-            print(f"Created temporary dummy image '{TEST_IMAGE}' for testing.")
+        import sys
+        print(f"Error: Test image '{TEST_IMAGE}' not found.")
+        print("Please place a sample test leaf image at that path to run inference.")
+        sys.exit(1)
         
     try:
         pred_class, confidence = predict(TEST_IMAGE, MODEL_CHECKPOINT, classes)
