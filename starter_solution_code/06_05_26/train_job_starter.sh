@@ -10,6 +10,7 @@
 #   - Time limit: 2 hours (02:00:00)
 #   - Nodes: 1
 #   - Cores (ntasks-per-node): 1
+#   - CPUs per task (cpus-per-task): 8 (for DataLoader workers)
 #   - GPU count: 1 (gpus-per-node=1)
 #   - Output file pattern: slurm-training-%j.out
 #   - Account: PAS2699
@@ -18,6 +19,7 @@
 #SBATCH --time=02:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=8
 #SBATCH --gpus-per-node=1
 #SBATCH --output=slurm-training-%j.out
 #SBATCH --account=PAS2699

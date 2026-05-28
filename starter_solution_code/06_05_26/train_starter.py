@@ -130,8 +130,8 @@ def main():
     train_subset = Subset(train_dataset, train_idx)
     val_subset = Subset(val_dataset, val_idx)
     
-    train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True, num_workers=8)
+    val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False, num_workers=8)
     
     print(f"Loaded {len(train_dataset)} images across {num_classes} classes.")
     print(f"Classes: {train_dataset.classes}")
