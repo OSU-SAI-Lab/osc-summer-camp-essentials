@@ -115,7 +115,7 @@ def main():
     ]
     
     MODEL_CHECKPOINT = "models/soybean_dinov2_head_model.pth"
-    TEST_IMAGE = "outputs/sample_test_leaf.jpg"
+    TEST_IMAGE = "outputs/sample_test_leaf.jpg" # Feel free to change this path to where you sample image lives in
     
     if not os.path.exists(TEST_IMAGE):
         import sys

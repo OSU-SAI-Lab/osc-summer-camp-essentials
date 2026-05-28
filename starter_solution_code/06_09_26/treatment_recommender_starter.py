@@ -27,8 +27,8 @@ def generate_treatment_recommendation(predicted_class, confidence_score):
     # If the confidence score is below 0.60, return a recommendation asking the
     # student or farmer to capture a clearer, more focused image.
     
-    if confidence_score < 0.60:
-        return "Low confidence detection. Please retake the photo under better lighting, ensuring focus is on the leaf."
+    if confidence_score < None:
+        return # TODO: Add a useful recommendation for the photo here
 
     # TODO 2: Map each crop class to the appropriate agronomic recommendation
     # Classes:
@@ -43,22 +43,22 @@ def generate_treatment_recommendation(predicted_class, confidence_score):
         
         pass
         
-    elif predicted_class == 'FrogEyeLeafSpot':
+    elif predicted_class == None: # TODO: What class are we missing here?
         # TODO: Return FLS treatment recommendation
         
         pass
         
-    elif predicted_class == 'SuddenDeathSyndrome':
+    elif predicted_class == None: # TODO: What class are we missing here?
         # TODO: Return SDS management recommendation (Fusarium virguliforme)
         
         pass
         
-    elif predicted_class == 'DicambaDamage':
+    elif predicted_class == None: # TODO: What class are we missing here?
         # TODO: Return herbicide drift response recommendation
         
         pass
         
-    elif predicted_class in ['InsectDamage', 'GenericFeeding']:
+    elif predicted_class in [None, None]: # TODO: What classes are we missing here?
         # TODO: Return insect feeding treatment recommendation
         
         pass

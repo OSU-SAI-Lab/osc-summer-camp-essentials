@@ -4,16 +4,22 @@ Welcome to Day 1 of the AI in the Field Camp! Today we will get comfortable with
 
 ---
 
-##  Morning Session: OSC Foundations & "Hello World" GPU Node
+## Morning Session: OSC Foundations & "Hello World" GPU Node
 
-### Useful OSC Commands
+### Useful Commands
 
-To run scripts on OSC Pitzer or Owens, we load the required pre-installed software modules. In your terminal, run:
+To run scripts on OSC Ascend or Cardinal, we load the required pre-installed software modules. In your terminal, run:
 
 ```bash
 # Load the Python and PyTorch modules
 module load python/3.10
-module load cuda/11.8.0
+module load cuda/12.1.1
+
+# Create a virtual environment
+python -m venv venv_osc
+
+# Install requirements
+pip install -r requirements.txt
 
 # Activate the virtual environment
 source ../../venv_osc/bin/activate
@@ -33,7 +39,7 @@ Because training deep learning models requires massive compute power, we run our
 
 ---
 
-##  Afternoon Session: Exploratory Data Analysis (EDA) & DataLoaders
+## Afternoon Session: Exploratory Data Analysis (EDA) & DataLoaders
 
 ### How PyTorch Sees Datasets
 
@@ -69,7 +75,7 @@ Transforms allow us to resize, normalize, and augment our images. Common transfo
 
 ---
 
-##  Curated Resources for Day 1
+## Curated Resources for Day 1
 
 * [OSC Slurm Guide](https://bpb-us-w2.wpmucdn.com/u.osu.edu/dist/4/102442/files/2025/03/OSC-Slurm-Guideline.pdf)
 * [Official PyTorch Transforms Documentation](https://pytorch.org/vision/stable/transforms.html)
