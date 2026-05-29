@@ -6,18 +6,18 @@ Students learn to train, optimize, evaluate, and deploy a self-supervised deep l
 
 ---
 
-## Curriculum Schedule Overview | [Slides For The Whole Camp](https://buckeyemailosu-my.sharepoint.com/personal/kamath_62_buckeyemail_osu_edu/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fkamath%5F62%5Fbuckeyemail%5Fosu%5Fedu%2FDocuments%2Fosc%2Dsummer%2Dcamp&ga=1)
+## Curriculum Schedule Overview
 
-| Date | Morning Session (9:00 AM - 12:00 PM) | Afternoon Session (1:00 PM - 5:00 PM) | Key Resources |
-| :--- | :--- | :--- | :--- |
-| **Wed, June 3** | [OSC Foundations & Problem Framing](starter_solution_code/06_03_26/morning) | [Exploratory Data Analysis (EDA)](starter_solution_code/06_03_26/afternoon) | [Day 1 References](starter_solution_code/06_03_26/references.md) |
-| **Thu, June 4** | On-Site Field Data Collection | [Data Integration & Model Architecture](starter_solution_code/06_04_26/afternoon) | [Day 2 References](starter_solution_code/06_04_26/references.md) |
-| **Fri, June 5** | [Training Launch](starter_solution_code/06_05_26/morning) | [Monitoring & Optimization](starter_solution_code/06_05_26/afternoon) | [Day 3 References](starter_solution_code/06_05_26/references.md) |
-| **Mon, June 8** | [Error Analysis & Baseline Review](starter_solution_code/06_08_26/morning) | [Hyperparameter Tuning & Sweeps](starter_solution_code/06_08_26/afternoon) | [Day 4 References](starter_solution_code/06_08_26/references.md) |
-| **Tue, June 9** | [Building the Inference Pipeline](starter_solution_code/06_09_26/morning) | [Actionable Agronomic Insights](starter_solution_code/06_09_26/afternoon) | [Day 5 References](starter_solution_code/06_09_26/references.md) |
-| **Wed, June 10**| Self-Directed Prep (No Morning Session) | [Deployment Prep & Edge Optimization](starter_solution_code/06_10_26/afternoon) | [Day 6 References](starter_solution_code/06_10_26/references.md) |
-| **Thu, June 11**| Live Field Testing & Inference | [Out-of-Distribution (OOD) Evaluation](starter_solution_code/06_11_26/afternoon) | [Day 7 References](starter_solution_code/06_11_26/references.md) |
-| **Fri, June 12**| [Gradio Dashboard Deployment](starter_solution_code/06_12_26/morning) | Final STEM Demos & Presentations | [Day 8 References](starter_solution_code/06_12_26/references.md) |
+| Date | Morning Session (9:00 AM - 12:00 PM) | Afternoon Session (1:00 PM - 5:00 PM) | Key Resources | Slides |
+| :--- | :--- | :--- | :--- | :--- |
+| **Wed, June 3** | [OSC Foundations & Problem Framing](starter_solution_code/06_03_26/morning) | [Exploratory Data Analysis (EDA)](starter_solution_code/06_03_26/afternoon) | [Day 1 References](starter_solution_code/06_03_26/references.md) | [Slides](https://buckeyemailosu-my.sharepoint.com/:p:/g/personal/kamath_62_buckeyemail_osu_edu/IQCvILsY0tSxRacCDufh7xTCAVI9wzC4UH9jc9_zhhun3i4?e=ScOukk) |
+| **Thu, June 4** | On-Site Field Data Collection | [Data Integration & Model Architecture](starter_solution_code/06_04_26/afternoon) | [Day 2 References](starter_solution_code/06_04_26/references.md) | [Slides](https://buckeyemailosu-my.sharepoint.com/:p:/g/personal/kamath_62_buckeyemail_osu_edu/IQCkxuC9ajhDQ7JO5neezVPEAUyKNHpnP1FcbDC4uJd9bAs?e=EBuXZd) |
+| **Fri, June 5** | [Training Launch](starter_solution_code/06_05_26/morning) | [Monitoring & Optimization](starter_solution_code/06_05_26/afternoon) | [Day 3 References](starter_solution_code/06_05_26/references.md) | [Slides](https://buckeyemailosu-my.sharepoint.com/:p:/g/personal/kamath_62_buckeyemail_osu_edu/IQBxLXAefzOdQYehlHoFnq4bARlS3c3tchd-jFCZeHIKQks?e=UWOaT7) |
+| **Mon, June 8** | [Error Analysis & Baseline Review](starter_solution_code/06_08_26/morning) | [Hyperparameter Tuning & Sweeps](starter_solution_code/06_08_26/afternoon) | [Day 4 References](starter_solution_code/06_08_26/references.md) | [Slides](https://buckeyemailosu-my.sharepoint.com/:p:/g/personal/kamath_62_buckeyemail_osu_edu/IQBnsp_rO6_uSKIazYFHjmG0AS4wafgQwBoa2gXtGsWqI2w?e=7xJFIg) |
+| **Tue, June 9** | [Building the Inference Pipeline](starter_solution_code/06_09_26/morning) | [Actionable Agronomic Insights](starter_solution_code/06_09_26/afternoon) | [Day 5 References](starter_solution_code/06_09_26/references.md) | [Slides](https://buckeyemailosu-my.sharepoint.com/:p:/g/personal/kamath_62_buckeyemail_osu_edu/IQB48BbnNNTuQ5Qsv9irc5rLARTYn8wn0nhuo75U_vlYfoU?e=f6Lf7Z) |
+| **Wed, June 10**| Self-Directed Prep (No Morning Session) | [Deployment Prep & Edge Optimization](starter_solution_code/06_10_26/afternoon) | [Day 6 References](starter_solution_code/06_10_26/references.md) | [Slides](https://buckeyemailosu-my.sharepoint.com/:p:/g/personal/kamath_62_buckeyemail_osu_edu/IQB4vurn4VH_SYffUETqkm3vAQh0uEeK4LYVhnytMRLQS-g?e=4HzX9I) |
+| **Thu, June 11**| Live Field Testing & Inference | [Out-of-Distribution (OOD) Evaluation](starter_solution_code/06_11_26/afternoon) | [Day 7 References](starter_solution_code/06_11_26/references.md) | [Slides](https://buckeyemailosu-my.sharepoint.com/:p:/g/personal/kamath_62_buckeyemail_osu_edu/IQC74RqUaXRhTaMolQelunloASfFUPxNLfck5V1OcKTiRKA?e=1WlgGu) |
+| **Fri, June 12**| [Gradio Dashboard Deployment](starter_solution_code/06_12_26/morning) | Final STEM Demos & Presentations | [Day 8 References](starter_solution_code/06_12_26/references.md) | [Slides](https://buckeyemailosu-my.sharepoint.com/:p:/g/personal/kamath_62_buckeyemail_osu_edu/IQBx8ErVUlZmT4U4e4bFmixYAZEZp2WFHXIAFjn1g1crjjo?e=xmhGDw) |
 
 ---
 
