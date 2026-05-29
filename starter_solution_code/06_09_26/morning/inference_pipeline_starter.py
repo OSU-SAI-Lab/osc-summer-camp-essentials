@@ -1,0 +1,140 @@
+"""
+Tuesday, June 9 - Morning Session
+Image Prediction Pipeline (Starter Code)
+
+What this script is:
+An image preprocessing and prediction pipeline script.
+
+Goal of this script:
+Load saved model weights, preprocess single input leaf images, compute class probabilities using softmax, and output predictions.
+
+Why we are doing it (Student Context):
+An AI model is only useful if it can run on new, unseen data in the real world. This pipeline bridges saved training checkpoints to real-world input images.
+"""
+
+import os
+import torch
+import torch.nn as nn
+import timm
+from PIL import Image
+from torchvision import transforms
+
+class SoybeanClassifier(nn.Module):
+    def __init__(self, num_classes=6):
+        super(SoybeanClassifier, self).__init__()
+        # Use simple resnet18 as a fast local fallback or standard timm load
+        try:
+            self.backbone = timm.create_model('vit_base_patch14_dinov2.lvd142m', pretrained=False, num_classes=0)
+        except Exception:
+            # CPU/Local lightweight model fallback for testing
+            self.backbone = timm.create_model('resnet18', pretrained=False, num_classes=0)
+        in_features = self.backbone.num_features
+        self.head = nn.Linear(in_features, num_classes)
+        
+    def forward(self, x):
+        features = self.backbone(x)
+        logits = self.head(features)
+        return logits
+
+def preprocess_image(image_path):
+    """
+    Loads an image, converts it to RGB, applies resizing,
+    converts to a tensor, and adds a batch dimension.
+    """
+    image = Image.open(image_path).convert("RGB")
+    
+    # TODO 1: Complete the image preprocessing transforms.
+    # Requirements: Resize to (518, 518) and convert to Tensor.
+    
+    preprocess = transforms.Compose([
+        # TODO: Add transforms here
+    
+    ])
+    
+    img_tensor = preprocess(image)
+    
+    # TODO 2: Add a batch dimension to the tensor.
+    # The tensor has shape (3, 518, 518), but PyTorch expects (1, 3, 518, 518).
+    # Hint: Use img_tensor.unsqueeze(0)
+    
+    img_tensor = None # TODO: Add batch dimension
+    
+    return img_tensor
+
+def predict(image_path, model_path, classes):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    # Initialize model
+    model = SoybeanClassifier(num_classes=len(classes))
+    
+    # Load model weights if checkpoint exists
+    if os.path.exists(model_path):
+        print(f"Loading trained weights from checkpoint '{model_path}'...")
+        checkpoint = torch.load(model_path, map_location=device)
+        # Load state dict (checks if saved as full dict or state_dict)
+        if isinstance(checkpoint, dict) and "model_state" in checkpoint:
+            model.load_state_dict(checkpoint["model_state"])
+        else:
+            model.load_state_dict(checkpoint)
+    else:
+        print(f"Checkpoint '{model_path}' not found. Running with random weights for demo.")
+        
+    model = model.to(device)
+    model.eval()
+    
+    # Preprocess image
+    img_tensor = preprocess_image(image_path).to(device)
+    
+    # TODO 3: Run model inference.
+    # Requirements:
+    #   - Run the forward pass inside torch.no_grad() block.
+    #   - Apply torch.softmax on the outputs to calculate probability confidence.
+    #   - Use torch.argmax to find the index of the class with highest confidence.
+    
+    with torch.no_grad():
+        outputs = model(img_tensor)
+        # TODO: Apply softmax (dim=1)
+        
+        probabilities = None
+        # TODO: Get the predicted index and confidence value
+        
+        pred_idx = 0
+        confidence = 0.0
+
+    pred_class = classes[pred_idx]
+    return pred_class, confidence
+
+def main():
+    classes = [
+        'DicambaDamage', 
+        'FrogEyeLeafSpot', 
+        'GenericFeeding', 
+        'InsectDamage', 
+        'Soybeans', 
+        'SuddenDeathSyndrome'
+    ]
+    
+    MODEL_CHECKPOINT = "models/soybean_dinov2_head_model.pth"
+    TEST_IMAGE = "outputs/sample_test_leaf.jpg" # Feel free to change this path to where you sample image lives in
+    
+    if not os.path.exists(TEST_IMAGE):
+        import sys
+        print(f"Error: Test image '{TEST_IMAGE}' not found.")
+        print("Please place a sample test leaf image at that path to run inference.")
+        sys.exit(1)
+        
+    try:
+        pred_class, confidence = predict(TEST_IMAGE, MODEL_CHECKPOINT, classes)
+        print("\n=========================================")
+        print("Inference Pipeline Output:")
+        print("=========================================")
+        print(f"Test Leaf Image: {TEST_IMAGE}")
+        print(f"Predicted Class: {pred_class}")
+        print(f"Confidence Score: {confidence * 100:.2f}%")
+        print("=========================================")
+        
+    except Exception as e:
+        print(f"Inference failed: {e}")
+
+if __name__ == "__main__":
+    main()

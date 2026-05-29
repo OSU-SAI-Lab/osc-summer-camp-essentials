@@ -1,0 +1,32 @@
+# ==============================================================================
+# Friday, June 5 - Morning Session
+# Hyperparameter Configuration Solution file
+# SOLUTION CODE — instructor reference only, do not share with students.
+# ==============================================================================
+
+# Dataset Configuration
+dataset:
+  root_path: "/fs/ess/PAS2699/AI_Presidency_Dataset_CSG/Soybeans/Soybeans"
+  train_ratio: 0.8
+
+# Training Environment Settings
+environment:
+  device: "cuda"
+  batch_size: 256
+  image_size: 518
+
+# Model Hyperparameters
+hyperparameters:
+  # Classifier Head Training
+  epochs_head: 5
+  lr_head: 0.001
+
+  # Transformer Fine-tuning (Last Block)
+  epochs_fine: 3
+  lr_fine: 0.00001
+  weight_decay: 0.01
+
+# Output File Settings
+output:
+  save_model_path: "models/soybean_dinov2_head_model.pth"
+  save_plots: true
