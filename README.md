@@ -6,7 +6,7 @@ Students learn to train, optimize, evaluate, and deploy a self-supervised deep l
 
 ---
 
-## Curriculum Schedule Overview | [Slides For The Whole Camp](https://buckeyemailosu-my.sharepoint.com/personal/kamath_62_buckeyemail_osu_edu/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fkamath%5F62%5Fbuckeyemail%5Fosu%5Fedu%2FDocuments%2Fosc%2Dsummer%2Dcamp&ga=1)
+## Curriculum Schedule Overview
 
 | Date | Morning Session (9:00 AM - 12:00 PM) | Afternoon Session (1:00 PM - 5:00 PM) | Key Resources | Slides |
 | :--- | :--- | :--- | :--- | :--- |
