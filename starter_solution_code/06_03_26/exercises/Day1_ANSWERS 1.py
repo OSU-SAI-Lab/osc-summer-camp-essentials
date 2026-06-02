@@ -16,12 +16,35 @@
 #
 # ============================================================
 
+import os
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.optim as optim
+import pandas as pd
 import matplotlib.pyplot as plt
 import time
+
+
+# ============================================================
+#  GLOBAL CONFIG — set these in ONE place, use them everywhere
+# ============================================================
+# These globals point at the CSV in the "sample_data" folder next
+# to this script, and name its columns. If the data ever moves or a
+# column is renamed, you only change it HERE. (The try/except lets
+# it work both as a .py file and inside a Colab/Kaggle notebook.)
+try:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    BASE_DIR = os.getcwd()
+
+SAMPLE_DATA_DIR    = os.path.join(BASE_DIR, "sample_data")
+CSV_FILENAME       = "leaf_measurements.csv"
+CSV_PATH           = os.path.join(SAMPLE_DATA_DIR, CSV_FILENAME)
+
+ID_COLUMN          = "sample_id"
+SPECIES_COLUMN     = "species"
+LENGTH_COLUMN      = "leaf_length_cm"
+CHLOROPHYLL_COLUMN = "chlorophyll_index"
+HEALTH_COLUMN      = "is_healthy"
 
 
 # ============================================================
@@ -418,116 +441,61 @@ print("✅ Loss curve plotted!")
 # If it goes UP or stays flat, training is not working.
 
 
-# ── D3 ANSWER 🔴 ─────────────────────────────────────────────
-print("\n── D3: CHALLENGE — Build a neural network ──")
+# ── D3 ANSWER 🟡 ─────────────────────────────────────────────
+print("\n── D3: Read and explore a CSV with pandas ──")
 
-class LeafClassifier(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.layer1 = nn.Linear(4, 8)    # 4 input features → 8 neurons
-        self.relu   = nn.ReLU()           # activation: kill negatives
-        self.layer2 = nn.Linear(8, 3)    # 8 neurons → 3 class scores
+df = pd.read_csv(CSV_PATH)
 
-    def forward(self, x):
-        x = self.layer1(x)    # linear transformation
-        x = self.relu(x)      # non-linear activation
-        x = self.layer2(x)    # final scores (no softmax here — CrossEntropyLoss adds it)
-        return x
+print("First 5 rows:")
+print(df.head())
+print("\nShape (rows, columns):", df.shape)
+print("\nData type of each column:")
+print(df.dtypes)
+print(f"\nAverage {LENGTH_COLUMN}:", df[LENGTH_COLUMN].mean().round(3))
 
-model       = LeafClassifier()
-dummy_input = torch.tensor([[0.8, 0.6, 0.3, 0.9]])   # 1 sample, 4 features
-output      = model(dummy_input)
-
-print("Network structure:\n", model)
-print("\nInput shape :", dummy_input.shape)
-print("Output shape:", output.shape)
-print("Raw scores  :", output.detach().round(decimals=3))
-
-total_params = sum(p.numel() for p in model.parameters())
-print("Total trainable parameters:", total_params)
-
-# WHY this many parameters?
-# layer1: weights (4×8=32) + bias (8) = 40
-# layer2: weights (8×3=24) + bias (3) = 27
-# Total = 40 + 27 = 67
-print(f"  layer1: 4×8 weights + 8 biases = {4*8+8}")
-print(f"  layer2: 8×3 weights + 3 biases = {8*3+3}")
-
-# COMMON MISTAKE: Applying softmax in the forward() method AND using
-#                 CrossEntropyLoss — that applies softmax twice!
-#                 CrossEntropyLoss expects RAW logits.
+# WHY: pd.read_csv() loads a whole spreadsheet in one line.
+# Using the GLOBAL CSV_PATH means this works no matter where the
+# script is launched from — we never hard-code the path inline.
+# .head() previews the top rows, .shape gives (rows, columns),
+# and .dtypes shows that each column has its OWN type:
+# int64 (sample_id), object/str (species), float64 (measurements), bool (is_healthy).
+# COMMON MISTAKE: Hard-coding "sample_data/leaf_measurements.csv" as a
+#                 relative path — it breaks the moment you run the file
+#                 from a different folder. Build the path from BASE_DIR instead.
 
 
 # ── D4 ANSWER 🔴 ─────────────────────────────────────────────
-print("\n── D4: ULTIMATE CHALLENGE — Mini training loop ──")
+print("\n── D4: CHALLENGE — Filter, group, and convert to NumPy ──")
 
-torch.manual_seed(42)
+df = pd.read_csv(CSV_PATH)   # re-read so D4 stands on its own
 
-# Re-define the model for a fresh start
-class LeafClassifier(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.layer1 = nn.Linear(4, 8)
-        self.relu   = nn.ReLU()
-        self.layer2 = nn.Linear(8, 3)
-    def forward(self, x):
-        return self.layer2(self.relu(self.layer1(x)))
+# a) Count the healthy leaves with a boolean filter
+healthy = df[df[HEALTH_COLUMN] == True]
+print("Number of healthy leaves:", len(healthy))
 
-model     = LeafClassifier()
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.01)
+# b) Average chlorophyll per species with groupby
+species_means = df.groupby(SPECIES_COLUMN)[CHLOROPHYLL_COLUMN].mean()
+print("\nAverage chlorophyll per species:")
+print(species_means.round(3))
 
-# Fake training data
-X = torch.rand(20, 4)                               # 20 samples, 4 features
-y = torch.randint(0, 3, (20,))                      # labels: 0, 1, or 2
+# c) Pull the column out as a NumPy array and take its mean
+chlorophyll_np = df[CHLOROPHYLL_COLUMN].to_numpy()
+pandas_mean = df[CHLOROPHYLL_COLUMN].mean()
+numpy_mean  = chlorophyll_np.mean()
 
-print("Training LeafClassifier for 10 epochs...")
-epoch_losses = []
+print("\npandas mean:", round(pandas_mean, 4))
+print("NumPy mean :", round(numpy_mean, 4))
 
-for epoch in range(1, 11):
-    # 1. Reset gradients from last step
-    optimizer.zero_grad()
+# d) Confirm they match
+print("Means match:", np.isclose(pandas_mean, numpy_mean))
 
-    # 2. Forward pass — model makes predictions
-    outputs = model(X)
-
-    # 3. Calculate how wrong we are
-    loss = criterion(outputs, y)
-
-    # 4. Backward pass — compute gradients
-    loss.backward()
-
-    # 5. Update weights
-    optimizer.step()
-
-    epoch_losses.append(loss.item())
-    print(f"  Epoch {epoch:>2} | Loss: {loss.item():.4f}")
-
-# Plot the loss
-plt.figure(figsize=(8, 4))
-plt.plot(range(1, 11), epoch_losses, "g-o", linewidth=2, markersize=7)
-plt.title("Mini Training Loop — Loss over Epochs")
-plt.xlabel("Epoch")
-plt.ylabel("Loss")
-plt.grid(True, alpha=0.3)
-plt.tight_layout()
-plt.show()
-
-print("\n✅ Training complete!")
-print(f"Start loss: {epoch_losses[0]:.4f}")
-print(f"End loss  : {epoch_losses[-1]:.4f}")
-if epoch_losses[-1] < epoch_losses[0]:
-    print("📉 Loss went DOWN — the model is learning! ✅")
-else:
-    print("📈 Loss didn't drop — try more epochs or a higher learning rate!")
-
-# WHY each step matters:
-# zero_grad()    → without this, gradients ADD UP across steps (wrong!)
-# forward pass   → get predictions
-# loss           → measure how wrong we are
-# backward()     → compute ∂loss/∂weights for every weight
-# optimizer.step → nudge every weight slightly in the right direction
-# Repeat until loss is small enough!
+# WHY: Filtering a DataFrame with df[condition] is the SAME boolean-mask
+# idea you used on NumPy arrays in A6 — just on a labelled table.
+# .groupby(col) splits the rows by category, then .mean() summarises each group.
+# .to_numpy() hands the raw values to NumPy/PyTorch for the math — that
+# pandas → NumPy handoff is the everyday workflow on real datasets.
+# COMMON MISTAKE: Combining conditions without parentheses, e.g.
+#                 df[df.a > 1 & df.b < 2] — always wrap each: (df.a > 1) & (df.b < 2).
 
 
 # ============================================================
@@ -547,11 +515,15 @@ print("""
 
   PyTorch:
     ❌ torch.Tensor([1,2,3])  → use torch.tensor() (lowercase t)
-    ❌ loss.backward() twice  → gradients accumulate! call zero_grad() first
+    ❌ y.backward() twice     → gradients accumulate! zero them first
     ❌ tensor.numpy()         → fails if requires_grad=True
     ✅ tensor.detach().numpy()→ always safe
-    ❌ softmax in forward()   → then CrossEntropyLoss double-applies it
-    ✅ raw logits from model   → let CrossEntropyLoss handle softmax
+
+  pandas:
+    ❌ "data/file.csv" inline → breaks from another folder; build from BASE_DIR
+    ❌ df[df.a > 1 & df.b < 2]→ wrap each condition: (df.a > 1) & (df.b < 2)
+    ❌ df.column_name typo    → use the GLOBAL column-name constants
+    ✅ df[COL].to_numpy()     → hand the values to NumPy/PyTorch for math
 
   Both:
     ❌ Mixing CPU/GPU tensors → always put model AND data on same device
@@ -559,5 +531,5 @@ print("""
 """)
 
 print("\n🌟 Great work! You now understand the building blocks of all AI.")
-print("   These patterns — tensors, gradients, training loops —")
-print("   appear in EVERY neural network project, including ours!")
+print("   These patterns — loading data with pandas, crunching it with")
+print("   NumPy, and gradients in PyTorch — appear in EVERY project, including ours!")

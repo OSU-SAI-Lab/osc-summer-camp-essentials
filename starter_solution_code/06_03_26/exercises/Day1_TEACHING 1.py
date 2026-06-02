@@ -418,49 +418,158 @@ print("Expected: 2*3 + 2 =", 2*3 + 2, "✅")
 #              to move the weights to reduce the loss!"
 
 
+# ============================================================
+#  SECTION 4 — PANDAS: WORKING WITH REAL DATA TABLES
+#  "NumPy is great for raw numbers — pandas is great for TABLES"
+# ============================================================
+
+print("\n" + "="*55)
+print("SECTION 4: pandas — Reading and Exploring Data Tables")
+print("="*55)
+
+import os
+import pandas as pd
+
 # ----------------------------------------------------------
-# 3.7 — A Mini Neural Network in PyTorch (preview!)
+#  GLOBAL CONFIG — set these in ONE place, use them everywhere
 # ----------------------------------------------------------
-print("\n--- A Tiny Neural Network (just a peek!) ---")
-import torch.nn as nn
+# Keeping the file path and column names as GLOBAL variables means
+# that if the data file ever moves, or a column gets renamed, we
+# only edit it HERE — not in 20 different places further down.
 
-# The simplest possible neural network:
-# Input (2 numbers) → Hidden layer (4 neurons) → Output (1 number)
+# Build a path to the CSV that sits in the "sample_data" folder
+# next to this script. (The try/except lets it work both as a .py
+# file and inside a Colab/Kaggle notebook, where __file__ is missing.)
+try:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    BASE_DIR = os.getcwd()
 
-class TinyNet(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.layer1 = nn.Linear(2, 4)    # 2 inputs → 4 neurons
-        self.relu   = nn.ReLU()           # activation: negative → 0
-        self.layer2 = nn.Linear(4, 1)    # 4 neurons → 1 output
+SAMPLE_DATA_DIR    = os.path.join(BASE_DIR, "sample_data")
+CSV_FILENAME       = "leaf_measurements.csv"
+CSV_PATH           = os.path.join(SAMPLE_DATA_DIR, CSV_FILENAME)
 
-    def forward(self, x):
-        x = self.layer1(x)
-        x = self.relu(x)
-        x = self.layer2(x)
-        return x
+# Column names (kept here so a rename only happens in one spot)
+ID_COLUMN          = "sample_id"
+SPECIES_COLUMN     = "species"
+LENGTH_COLUMN      = "leaf_length_cm"
+CHLOROPHYLL_COLUMN = "chlorophyll_index"
+HEALTH_COLUMN      = "is_healthy"
 
-net   = TinyNet()
-dummy = torch.tensor([[1.5, 0.8]])   # one sample with 2 features
-out   = net(dummy)
+# A tunable threshold we reuse in a couple of places below
+CHLOROPHYLL_THRESHOLD = 0.5     # readings above this look "green/healthy"
 
-print("Input:", dummy)
-print("Output:", out)
-print("\nNetwork structure:")
-print(net)
 
-total_params = sum(p.numel() for p in net.parameters())
-print(f"\nTotal learnable parameters: {total_params}")
-print("(These are the weights that training will adjust!)")
+# ----------------------------------------------------------
+# 4.1 — Reading a CSV file into a DataFrame
+# ----------------------------------------------------------
+print("\n--- 4.1 Reading a CSV into a DataFrame ---")
+
+# A DataFrame is like a spreadsheet living in Python:
+# rows of records, each with named columns.
+df = pd.read_csv(CSV_PATH)
+
+print("Loaded data from:", CSV_PATH)
+print("\nFirst 5 rows:")
+print(df.head())
+
+# 💬 DISCUSS: "How is this different from a NumPy array?"
+# Key point: every COLUMN has a NAME and its own data TYPE.
+
+
+# ----------------------------------------------------------
+# 4.2 — Inspecting the data (always do this FIRST!)
+# ----------------------------------------------------------
+print("\n--- 4.2 Inspecting the DataFrame ---")
+
+print("Shape (rows, columns):", df.shape)
+print("\nColumn names:", list(df.columns))
+
+# Notice the different data types: int, float, object (text), and bool
+print("\nData type of EACH column:")
+print(df.dtypes)
+
+# .describe() gives quick statistics for the numeric columns
+print("\nQuick statistics (numeric columns only):")
+print(df.describe().round(3))
+
+# 💬 DISCUSS: "Which columns are whole numbers? decimals? text? True/False?"
+
+
+# ----------------------------------------------------------
+# 4.3 — Selecting columns and rows
+# ----------------------------------------------------------
+print("\n--- 4.3 Selecting columns and rows ---")
+
+# One column → a Series (like a 1D labelled array)
+print("\nFirst 5 chlorophyll readings:")
+print(df[CHLOROPHYLL_COLUMN].head())
+
+# Several columns at once → pass a LIST of column names
+print("\nSpecies + length for the first 5 rows:")
+print(df[[SPECIES_COLUMN, LENGTH_COLUMN]].head())
+
+# A single row by position with .iloc
+print("\nThe very first row:")
+print(df.iloc[0])
+
+
+# ----------------------------------------------------------
+# 4.4 — Filtering rows by condition (boolean indexing again!)
+# ----------------------------------------------------------
+print("\n--- 4.4 Filtering with conditions ---")
+
+# This is the SAME idea as NumPy boolean masks (Section 2.7),
+# but applied to a whole table with named columns.
+healthy = df[df[HEALTH_COLUMN] == True]
+print("Number of healthy leaves:", len(healthy))
+
+# Combine conditions with & (and) / | (or) — wrap EACH one in ()
+big_and_green = df[(df[LENGTH_COLUMN] > 10) &
+                   (df[CHLOROPHYLL_COLUMN] > CHLOROPHYLL_THRESHOLD)]
+print("Large AND high-chlorophyll leaves:", len(big_and_green))
+
+# 💬 DISCUSS: "Where have we seen this `mask` idea before?"
+# Answer: NumPy boolean indexing — same concept, friendlier syntax.
+
+
+# ----------------------------------------------------------
+# 4.5 — Grouping and summarising (the real superpower of pandas)
+# ----------------------------------------------------------
+print("\n--- 4.5 Group-by and aggregation ---")
+
+# Average leaf length and chlorophyll for EACH species
+summary = df.groupby(SPECIES_COLUMN)[[LENGTH_COLUMN, CHLOROPHYLL_COLUMN]].mean()
+print("Average measurements per species:")
+print(summary.round(3))
+
+# How many healthy vs unhealthy leaves do we have?
+print("\nHealthy vs unhealthy counts:")
+print(df[HEALTH_COLUMN].value_counts())
+
+
+# ----------------------------------------------------------
+# 4.6 — pandas ↔ NumPy (they work together!)
+# ----------------------------------------------------------
+print("\n--- 4.6 pandas ↔ NumPy ---")
+
+# Pull a column out as a NumPy array — ready for math or a model
+chlorophyll_np = df[CHLOROPHYLL_COLUMN].to_numpy()
+print("As a NumPy array:", chlorophyll_np[:5].round(3), "...")
+print("Type:", type(chlorophyll_np))
+print("Mean via NumPy:", chlorophyll_np.mean().round(3))
+
+# 💬 DISCUSS: "pandas loads & cleans the data → NumPy/PyTorch do the math.
+#              That is the exact workflow you'll use on real datasets!"
 
 
 # ============================================================
-#  SECTION 4 — NUMPY vs PYTORCH: SIDE-BY-SIDE
+#  SECTION 5 — NUMPY vs PYTORCH: SIDE-BY-SIDE
 #  "They look almost the same — on purpose!"
 # ============================================================
 
 print("\n" + "="*55)
-print("SECTION 4: NumPy vs PyTorch — Side by Side")
+print("SECTION 5: NumPy vs PyTorch — Side by Side")
 print("="*55)
 
 print("""
@@ -492,77 +601,6 @@ print("   They work TOGETHER — like a team!")
 
 
 # ============================================================
-#  SECTION 5 — REAL AI PIPELINE PREVIEW
-#  "Putting it all together — what happens when we train?"
-# ============================================================
-
-print("\n" + "="*55)
-print("SECTION 5: Sneak Peek — NumPy + PyTorch in a Real Pipeline")
-print("="*55)
-
-import torch.optim as optim
-
-# We'll simulate a tiny "is this leaf bright or dark?" classifier
-# Input: one number = average brightness (0–255)
-# Output: 0 = dark leaf (possibly diseased), 1 = bright (healthy)
-
-torch.manual_seed(0)
-
-# Fake training data — brightness values
-# Labels: 1 = healthy (bright), 0 = diseased (dark)
-np_brightness = np.array([210, 180, 160, 90, 50, 70, 200, 85], dtype=np.float32)
-np_labels     = np.array([  1,   1,   1,  0,  0,  0,   1,  0], dtype=np.float32)
-
-# Convert to PyTorch tensors
-X = torch.from_numpy(np_brightness).unsqueeze(1)  # shape (8, 1)
-y = torch.from_numpy(np_labels).unsqueeze(1)       # shape (8, 1)
-
-# Define the simplest possible model: 1 input → 1 output
-model     = nn.Linear(1, 1)
-criterion = nn.BCEWithLogitsLoss()                 # binary classification loss
-optimizer = optim.SGD(model.parameters(), lr=0.01)
-
-print("Training a tiny brightness classifier...")
-print("(Input = leaf brightness, Output = healthy/diseased)\n")
-
-losses = []
-for epoch in range(30):
-    optimizer.zero_grad()
-    output = model(X)
-    loss   = criterion(output, y)
-    loss.backward()
-    optimizer.step()
-    losses.append(loss.item())
-    if (epoch + 1) % 5 == 0:
-        print(f"  Epoch {epoch+1:>2} | Loss: {loss.item():.4f}")
-
-print("\n✅ Training complete!")
-
-# Test on new values
-test_brightness = torch.tensor([[230.0], [40.0]])
-with torch.no_grad():
-    predictions = torch.sigmoid(model(test_brightness))
-
-print(f"\nBrightness 230 → {predictions[0].item():.2%} chance of healthy")
-print(f"Brightness  40 → {predictions[1].item():.2%} chance of healthy")
-
-# Plot loss curve using NumPy + Matplotlib
-import matplotlib.pyplot as plt
-plt.figure(figsize=(8, 4))
-plt.plot(np.arange(1, 31), losses, "g-o", markersize=4)
-plt.title("Loss Curve — Tiny Brightness Classifier")
-plt.xlabel("Epoch")
-plt.ylabel("Loss")
-plt.grid(True, alpha=0.3)
-plt.tight_layout()
-plt.show()
-
-print("\n💡 This tiny example uses the EXACT same pattern as Day 2's CNN!")
-print("   torch.tensor → model → loss → backward → optimizer.step")
-print("   That loop IS deep learning. You now understand it!")
-
-
-# ============================================================
 #  SECTION 6 — KEY TAKEAWAYS
 # ============================================================
 
@@ -580,13 +618,19 @@ print("""
     ✅ Tensors = NumPy arrays + GPU + automatic gradients
     ✅ Autograd tracks operations to compute gradients automatically
     ✅ Gradients tell us how to update weights during training
-    ✅ nn.Module = the building block of every neural network
     ✅ Same API as NumPy — easy to switch between them
 
+  pandas:
+    ✅ DataFrames = spreadsheets in Python (named columns + data types)
+    ✅ read_csv loads real data files in a single line
+    ✅ Inspect with .head(), .shape, .dtypes, .describe()
+    ✅ Filter with conditions and summarise with .groupby()
+    ✅ .to_numpy() hands the data straight to NumPy/PyTorch
+
   Together:
-    ✅ NumPy handles data prep → PyTorch handles model training
+    ✅ pandas loads & cleans data → NumPy/PyTorch do the math
     ✅ They pass data back and forth seamlessly
-    ✅ Everything in our plant disease project uses BOTH
+    ✅ Everything in our plant disease project uses these tools
 
   Next up: EXERCISES!
     → Open Day1_Filler_EXERCISES.py and test what you learned!

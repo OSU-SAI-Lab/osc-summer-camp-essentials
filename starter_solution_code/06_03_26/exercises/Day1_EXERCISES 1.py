@@ -20,10 +20,34 @@
 #
 # ============================================================
 
+import os
 import numpy as np
 import torch
-import torch.nn as nn
+import pandas as pd
 import matplotlib.pyplot as plt
+
+
+# ============================================================
+#  GLOBAL CONFIG — set these in ONE place, use them everywhere
+# ============================================================
+# These globals point at the CSV in the "sample_data" folder next
+# to this script, and name its columns. If the data ever moves or a
+# column is renamed, you only change it HERE. (The try/except lets
+# it work both as a .py file and inside a Colab/Kaggle notebook.)
+try:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    BASE_DIR = os.getcwd()
+
+SAMPLE_DATA_DIR    = os.path.join(BASE_DIR, "sample_data")
+CSV_FILENAME       = "leaf_measurements.csv"
+CSV_PATH           = os.path.join(SAMPLE_DATA_DIR, CSV_FILENAME)
+
+ID_COLUMN          = "sample_id"
+SPECIES_COLUMN     = "species"
+LENGTH_COLUMN      = "leaf_length_cm"
+CHLOROPHYLL_COLUMN = "chlorophyll_index"
+HEALTH_COLUMN      = "is_healthy"
 
 
 # ============================================================
@@ -340,41 +364,36 @@ print("\n── D2: Plot a loss curve ──")
 # YOUR CODE HERE
 
 
-# ── D3 🔴 ────────────────────────────────────────────────────
-# CHALLENGE: Build a tiny neural network using nn.Module.
+# ── D3 🟡 ────────────────────────────────────────────────────
+# Load and explore a REAL data table with pandas.
 #
-# Create a network called LeafClassifier with this structure:
-#   Input: 4 features (e.g. brightness R, G, B, texture)
-#   Hidden layer: 8 neurons, with ReLU activation
-#   Output: 3 classes (Healthy, Early Blight, Late Blight)
+# A CSV of leaf measurements lives in the "sample_data" folder.
+# Use the GLOBAL variable CSV_PATH (defined at the top) to read it.
 #
-# Steps:
-# a) Define the class inheriting from nn.Module
-# b) Create a dummy input tensor of shape (1, 4) — 1 sample, 4 features
-# c) Run it through your network (forward pass)
-# d) Print the output shape and the raw scores
-# e) Print the total number of trainable parameters
+# a) Read the file into a DataFrame called 'df' (hint: pd.read_csv)
+# b) Print the first 5 rows (hint: .head())
+# c) Print the shape — how many rows and columns?
+# d) Print the data type of each column (hint: .dtypes)
+# e) Print the average value of the LENGTH_COLUMN (use the global name)
 
-print("\n── D3: CHALLENGE — Build a neural network ──")
+print("\n── D3: Read and explore a CSV with pandas ──")
 # YOUR CODE HERE
 
 
 # ── D4 🔴 ────────────────────────────────────────────────────
-# ULTIMATE CHALLENGE: Mini training loop
+# CHALLENGE: Filter, group, and hand data to NumPy.
 #
-# Use your LeafClassifier from D3 (or define it again here).
-# Create fake training data:
-#   X = random tensor of shape (20, 4)  — 20 samples, 4 features
-#   y = random integer labels (0, 1, or 2) — shape (20,)
+# Using the same 'df' from D3 (re-read it if you need to):
 #
-# Train for 10 epochs:
-#   - Use CrossEntropyLoss as the loss function
-#   - Use Adam optimiser with lr=0.01
-#   - Print the loss every epoch
-#
-# After training, plot the loss curve.
+# a) Count how many leaves are healthy
+#    (filter rows where HEALTH_COLUMN == True, then use len())
+# b) Use .groupby(SPECIES_COLUMN) to print the AVERAGE
+#    CHLOROPHYLL_COLUMN value for each species
+# c) Pull the CHLOROPHYLL_COLUMN out as a NumPy array
+#    (hint: .to_numpy()) and print its mean using NumPy
+# d) Confirm the pandas mean and the NumPy mean match!
 
-print("\n── D4: ULTIMATE CHALLENGE — Mini training loop ──")
+print("\n── D4: CHALLENGE — Filter, group, and convert to NumPy ──")
 # YOUR CODE HERE
 
 
@@ -392,7 +411,7 @@ print("""
     C1–C6   → PyTorch tensors    ✅ or ❌?
     C7      → Autograd           ✅ or ❌?
     D1–D2   → Predictions+plots  ✅ or ❌?
-    D3–D4   → Neural network     ✅ or ❌?
+    D3–D4   → pandas data tables ✅ or ❌?
 
   Stuck on something? That's normal — it means you're learning!
   Check the answer script: Day1_Filler_ANSWERS.py

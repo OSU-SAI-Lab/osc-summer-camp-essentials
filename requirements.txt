@@ -4,6 +4,7 @@
 
 # Core Data Science & Plotting
 numpy>=1.26
+pandas>=2.0
 matplotlib>=3.7
 pillow>=10.0
 scikit-learn>=1.3
